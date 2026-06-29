@@ -3,7 +3,7 @@ import pytz
 from datetime import date, datetime, timedelta
 
 from waxt.calendar_converters import JalaliCalendar, HijriCalendar
-from waxt.date import DateService
+from waxt.date import Date
 
 
 # ==========================================
@@ -12,7 +12,7 @@ from waxt.date import DateService
 
 class TestJalaliDate:
     def test_fromgregorian_named_args(self):
-        service = DateService(timezone="Asia/Tehran", calendar="jalali")
+        service = Date(timezone="Asia/Tehran", calendar="jalali")
         y, m, d = service.get_date_components(
             datetime(2018, 7, 14, 12, 0, 0, tzinfo=pytz.UTC)
         )
@@ -20,7 +20,7 @@ class TestJalaliDate:
 
     def test_fromgregorian_date_input(self):
         gd = date(2018, 7, 14)
-        service = DateService(timezone="Asia/Tehran", calendar="jalali")
+        service = Date(timezone="Asia/Tehran", calendar="jalali")
         y, m, d = service.get_date_components(
             datetime(gd.year, gd.month, gd.day, tzinfo=pytz.UTC)
         )
@@ -28,7 +28,7 @@ class TestJalaliDate:
 
     def test_fromgregorian_datetime_input(self):
         gdt = datetime(2018, 7, 15, 11, 7, 0)
-        service = DateService(timezone="Asia/Tehran", calendar="jalali")
+        service = Date(timezone="Asia/Tehran", calendar="jalali")
         y, m, d = service.get_date_components(gdt)
         assert (y, m, d) == (1397, 4, 24)
 
@@ -78,7 +78,7 @@ class TestJalaliDate:
         assert JalaliCalendar.gregorian_to_jalali(d.year, d.month, d.day) == (-621, 10, 12)
 
     def test_date_comparison(self):
-        service = DateService(timezone="UTC", calendar="jalali")
+        service = Date(timezone="UTC", calendar="jalali")
         d1 = datetime(2024, 3, 20, tzinfo=pytz.UTC)
         d2 = datetime(2024, 3, 21, tzinfo=pytz.UTC)
 
@@ -88,7 +88,7 @@ class TestJalaliDate:
         assert d2 > d1 and d2 >= d1 and d1 < d2 and d1 <= d2 and d1 != d2 and d1 == d1
 
     def test_datetime_to_str(self):
-        service = DateService(timezone="Asia/Tehran", calendar="jalali")
+        service = Date(timezone="Asia/Tehran", calendar="jalali")
         dt = datetime(2024, 3, 20, 0, 0, 0)
         assert "1403/01/01" in service.format_date(dt)
 
@@ -161,7 +161,7 @@ class TestInvalidDates:
 class TestDateServiceJalali:
     @pytest.fixture
     def service(self):
-        return DateService(timezone="Asia/Tehran", calendar="jalali")
+        return Date(timezone="Asia/Tehran", calendar="jalali")
 
     def test_get_date_components_returns_jalali(self, service):
         assert service.get_date_components(datetime(2024, 3, 20, 12, 0, 0)) == (1403, 1, 1)
@@ -267,7 +267,7 @@ class TestDateServiceJalali:
 class TestDateServiceTimezoneJalali:
     @pytest.fixture
     def service(self):
-        return DateService(timezone="Asia/Tehran", calendar="jalali")
+        return Date(timezone="Asia/Tehran", calendar="jalali")
 
     def test_now_utc(self, service):
         assert service.now_utc().tzinfo == pytz.UTC

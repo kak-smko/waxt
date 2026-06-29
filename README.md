@@ -38,21 +38,21 @@ Requires Python 3.10+ and `pytz`.
 
 ## 🚀 Quick Start
 
-### Create a DateService
+### Create a Date
 
-`DateService` is the main entry point. Configure it with a timezone and calendar type.
+`Date` is the main entry point. Configure it with a timezone and calendar type.
 
 ```python
-from waxt.date_service import DateService
+from waxt.date_service import Date
 
 # Jalali (Persian) calendar in Tehran
-svc = DateService(timezone="Asia/Tehran", calendar="jalali")
+svc = Date(timezone="Asia/Tehran", calendar="jalali")
 
 # Hijri (Islamic) calendar in Riyadh
-svc = DateService(timezone="Asia/Riyadh", calendar="hijri")
+svc = Date(timezone="Asia/Riyadh", calendar="hijri")
 
 # Gregorian calendar in UTC (default-like)
-svc = DateService(timezone="UTC", calendar="gregorian")
+svc = Date(timezone="UTC", calendar="gregorian")
 ```
 
 Calendar options: `"jalali"`, `"hijri"`, `"gregorian"`.
@@ -62,7 +62,7 @@ Calendar options: `"jalali"`, `"hijri"`, `"gregorian"`.
 ### Current Date & Time
 
 ```python
-svc = DateService(timezone="Asia/Tehran", calendar="jalali")
+svc = Date(timezone="Asia/Tehran", calendar="jalali")
 
 now = svc.now()                     # current datetime in Tehran
 now_utc = svc.now_utc()            # current datetime in UTC
@@ -77,7 +77,7 @@ Returns components in the configured calendar:
 ```python
 from datetime import datetime
 
-svc = DateService(timezone="Asia/Tehran", calendar="jalali")
+svc = Date(timezone="Asia/Tehran", calendar="jalali")
 
 dt = datetime(2025, 6, 15)
 year, month, day = svc.get_date_components(dt)
@@ -89,7 +89,7 @@ year, month, day = svc.get_date_components(dt)
 ### Format Dates
 
 ```python
-svc = DateService(timezone="Asia/Tehran", calendar="jalali")
+svc = Date(timezone="Asia/Tehran", calendar="jalali")
 dt = datetime(2025, 6, 15, 14, 30, 0)
 
 # Default format: YYYY/MM/DD
@@ -112,7 +112,7 @@ Format specifiers: `%Y` (year), `%m` (month), `%d` (day), `%H` (hour), `%M` (min
 Parse a date string into a `datetime` object. Input is interpreted in the configured calendar.
 
 ```python
-svc = DateService(timezone="Asia/Tehran", calendar="jalali")
+svc = Date(timezone="Asia/Tehran", calendar="jalali")
 
 dt = svc.parse_date("1404/03/25")
 # datetime(2025, 6, 15, 0, 0, 0) — Gregorian equivalent
@@ -129,7 +129,7 @@ dt = svc.parse_date("1404-03-25 14:30:00")
 from datetime import datetime
 import pytz
 
-svc = DateService(timezone="Asia/Tehran", calendar="gregorian")
+svc = Date(timezone="Asia/Tehran", calendar="gregorian")
 
 utc_dt = datetime(2025, 6, 15, 10, 0, 0, tzinfo=pytz.UTC)
 
@@ -149,7 +149,7 @@ back_to_utc = svc.to_utc(local_dt)
 ```python
 from datetime import datetime
 
-svc = DateService(timezone="UTC", calendar="jalali")
+svc = Date(timezone="UTC", calendar="jalali")
 dt = datetime(2025, 6, 15)
 
 # Add days (works on Gregorian datetime)
@@ -168,15 +168,15 @@ svc.add_months(dt, -2)
 ### Month Names
 
 ```python
-svc = DateService(timezone="UTC", calendar="jalali")
+svc = Date(timezone="UTC", calendar="jalali")
 svc.get_month_name(1, locale="fa")  # "فروردین"
 svc.get_month_name(1, locale="en")  # "Farvardin"
 
-svc = DateService(timezone="UTC", calendar="hijri")
+svc = Date(timezone="UTC", calendar="hijri")
 svc.get_month_name(1, locale="ar")  # "محرم"
 svc.get_month_name(1, locale="en")  # "Muharram"
 
-svc = DateService(timezone="UTC", calendar="gregorian")
+svc = Date(timezone="UTC", calendar="gregorian")
 svc.get_month_name(1, locale="en")  # "January"
 svc.get_month_name(1, locale="fa")  # "ژانویه"
 ```
@@ -186,7 +186,7 @@ svc.get_month_name(1, locale="fa")  # "ژانویه"
 ### Day Boundaries
 
 ```python
-svc = DateService(timezone="UTC", calendar="gregorian")
+svc = Date(timezone="UTC", calendar="gregorian")
 dt = datetime(2025, 6, 15, 14, 30, 0)
 
 svc.start_of_day(dt)  # datetime(2025, 6, 15, 0, 0, 0)
@@ -208,7 +208,7 @@ svc = create_date_service_for_company(company)
 
 ## 📚 API Reference
 
-### `DateService(timezone, calendar)`
+### `Date(timezone, calendar)`
 
 | Method | Returns | Description |
 |---|---|---|
@@ -230,9 +230,9 @@ svc = create_date_service_for_company(company)
 
 | Constant | Value |
 |---|---|
-| `DateService.CALENDAR_JALALI` | `"jalali"` |
-| `DateService.CALENDAR_HIJRI` | `"hijri"` |
-| `DateService.CALENDAR_GREGORIAN` | `"gregorian"` |
+| `Date.CALENDAR_JALALI` | `"jalali"` |
+| `Date.CALENDAR_HIJRI` | `"hijri"` |
+| `Date.CALENDAR_GREGORIAN` | `"gregorian"` |
 
 ---
 

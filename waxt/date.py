@@ -6,7 +6,7 @@ import pytz
 from waxt.calendar_converters import HijriCalendar, JalaliCalendar
 
 
-class DateService:
+class Date:
     CALENDAR_JALALI = "jalali"
     CALENDAR_HIJRI = "hijri"
     CALENDAR_GREGORIAN = "gregorian"
@@ -332,7 +332,7 @@ class DateService:
         return dt.replace(hour=23, minute=59, second=59, microsecond=999999)
 
 
-def create_date_service_for_company(company) -> DateService:
+def create_date_service_for_company(company) -> Date:
     timezone = getattr(company, "timezone", "UTC")
     calendar = getattr(company, "calendar", "gregorian")
-    return DateService(timezone=timezone, calendar=calendar)
+    return Date(timezone=timezone, calendar=calendar)

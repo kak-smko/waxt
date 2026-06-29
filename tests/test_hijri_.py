@@ -3,7 +3,7 @@ import pytz
 from datetime import date, datetime, timedelta
 
 from waxt.calendar_converters import HijriCalendar
-from waxt.date import DateService
+from waxt.date import Date
 
 
 # ==========================================
@@ -15,7 +15,7 @@ class TestHijriDate:
         assert HijriCalendar.gregorian_to_hijri(622, 7, 19) == (1, 1, 1)
 
     def test_representation(self):
-        service = DateService(timezone="Asia/Tehran", calendar="hijri")
+        service = Date(timezone="Asia/Tehran", calendar="hijri")
         y, m, d = service.get_date_components(datetime(622, 7, 19))
         assert (y, m, d) == (1, 1, 1)
 
@@ -61,11 +61,11 @@ class TestHijriConversion:
         assert HijriCalendar.hijri_to_gregorian(1410, 8, 12) == (1990, 3, 10)
 
     def test_dmyformat_equivalent(self):
-        service = DateService(timezone="Asia/Tehran", calendar="hijri")
+        service = Date(timezone="Asia/Tehran", calendar="hijri")
         assert service.format_date(datetime(1990, 3, 10), "%d/%m/%Y") == "12/08/1410"
 
     def test_isoformat_equivalent(self):
-        service = DateService(timezone="Asia/Tehran", calendar="hijri")
+        service = Date(timezone="Asia/Tehran", calendar="hijri")
         assert service.format_date(datetime(1990, 3, 10), "%Y-%m-%d") == "1410-08-12"
 
     def test_properties(self):
@@ -82,7 +82,7 @@ class TestHijriConversion:
         assert HijriCalendar.hijri_to_gregorian(*h_date) == g_date
 
     def test_fromisoformat_equivalent(self):
-        service = DateService(timezone="Asia/Tehran", calendar="hijri")
+        service = Date(timezone="Asia/Tehran", calendar="hijri")
         result = service.parse_date("1410/06/03")
         assert result is not None
         assert (result.year, result.month, result.day) == (1990, 1, 1)
@@ -131,7 +131,7 @@ class TestHijriLeapYear:
 class TestDateServiceHijri:
     @pytest.fixture
     def service(self):
-        return DateService(timezone="Asia/Tehran", calendar="hijri")
+        return Date(timezone="Asia/Tehran", calendar="hijri")
 
     def test_get_date_components_returns_hijri(self, service):
         assert service.get_date_components(datetime(1990, 3, 10, 12, 0, 0)) == (1410, 8, 12)
@@ -252,7 +252,7 @@ class TestHijriGregorianCrossConversion:
 class TestDateServiceTimezoneHijri:
     @pytest.fixture
     def service(self):
-        return DateService(timezone="Asia/Tehran", calendar="hijri")
+        return Date(timezone="Asia/Tehran", calendar="hijri")
 
     def test_now_utc(self, service):
         assert service.now_utc().tzinfo == pytz.UTC
