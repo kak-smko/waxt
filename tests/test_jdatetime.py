@@ -3,7 +3,7 @@ import pytz
 from datetime import date, datetime, timedelta
 
 from waxt.calendar_converters import JalaliCalendar, HijriCalendar
-from waxt.date_service import DateService
+from waxt.date import DateService
 
 
 # ==========================================

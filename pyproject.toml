@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "waxt"
-version = "0.1.0"
+version = "0.1.1"
 description = "A modern Python library for multi-calendar date conversions (Jalali, Hijri, Gregorian)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -18,7 +18,7 @@ maintainers = [
 keywords = [
     "calendar", "date", "time", "jalali", "persian", "shamsi",
     "hijri", "islamic", "lunar", "gregorian", "conversion",
-    "datetime", "timezone", "iran", "kurdish", "rojmêr"
+    "datetime", "timezone"
 ]
 classifiers = [
     "Development Status :: 4 - Beta",
@@ -82,7 +82,7 @@ python_files = ["test_*.py"]
 
 [tool.black]
 line-length = 88
-target-version = ['py310', 'py311', 'py312']
+target-version = ['py310', 'py311', 'py312', 'py313']
 include = '\.pyi?$'
 
 [tool.isort]
