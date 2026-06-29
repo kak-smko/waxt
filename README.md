@@ -134,7 +134,7 @@ svc = Date(timezone="Asia/Tehran", calendar="gregorian")
 utc_dt = datetime(2025, 6, 15, 10, 0, 0, tzinfo=pytz.UTC)
 
 # UTC → Tehran
-local_dt = svc.to_company_timezone(utc_dt)
+local_dt = svc.to_local(utc_dt)
 # datetime(2025, 6, 15, 13, 30, 0, tzinfo=...)
 
 # Tehran → UTC
@@ -193,18 +193,6 @@ svc.start_of_day(dt)  # datetime(2025, 6, 15, 0, 0, 0)
 svc.end_of_day(dt)    # datetime(2025, 6, 15, 23, 59, 59, 999999)
 ```
 
----
-
-### Factory Helper
-
-```python
-from waxt.date_service import create_date_service_for_company
-
-# Reads timezone and calendar attributes from a company object
-svc = create_date_service_for_company(company)
-```
-
----
 
 ## 📚 API Reference
 
@@ -214,7 +202,7 @@ svc = create_date_service_for_company(company)
 |---|---|---|
 | `now()` | `datetime` | Current time in configured timezone |
 | `now_utc()` | `datetime` | Current UTC time |
-| `to_company_timezone(utc_dt)` | `datetime` | Convert UTC → local timezone |
+| `to_local(utc_dt)` | `datetime` | Convert UTC → local timezone |
 | `to_utc(local_dt)` | `datetime` | Convert local → UTC |
 | `get_date_components(dt)` | `(year, month, day)` | Extract date parts in configured calendar |
 | `format_date(dt, format_str, include_time)` | `str` | Format date with calendar-aware year/month/day |

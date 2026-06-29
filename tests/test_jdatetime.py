@@ -3,7 +3,7 @@ import pytz
 from datetime import date, datetime, timedelta
 
 from waxt.calendar_converters import JalaliCalendar, HijriCalendar
-from waxt.date import Date
+from waxt import Date
 
 
 # ==========================================
@@ -272,16 +272,16 @@ class TestDateServiceTimezoneJalali:
     def test_now_utc(self, service):
         assert service.now_utc().tzinfo == pytz.UTC
 
-    def test_now_in_company_tz(self, service):
+    def test_now_in_local_tz(self, service):
         assert service.now().tzinfo is not None
 
-    def test_to_company_timezone(self, service):
-        company_dt = service.to_company_timezone(datetime(2024, 3, 20, 0, 0, 0, tzinfo=pytz.UTC))
-        assert (company_dt.hour, company_dt.minute) == (3, 30)
+    def test_to_local_timezone(self, service):
+        local_dt = service.to_local(datetime(2024, 3, 20, 0, 0, 0, tzinfo=pytz.UTC))
+        assert (local_dt.hour, local_dt.minute) == (3, 30)
 
-    def test_to_company_timezone_naive_input(self, service):
-        company_dt = service.to_company_timezone(datetime(2024, 3, 20, 0, 0, 0))
-        assert (company_dt.hour, company_dt.minute) == (3, 30)
+    def test_to_local_timezone_naive_input(self, service):
+        local_dt = service.to_local(datetime(2024, 3, 20, 0, 0, 0))
+        assert (local_dt.hour, local_dt.minute) == (3, 30)
 
     def test_to_utc(self, service):
         tehran_dt = pytz.timezone("Asia/Tehran").localize(datetime(2024, 3, 20, 3, 30, 0))
@@ -290,10 +290,10 @@ class TestDateServiceTimezoneJalali:
 
     def test_round_trip_timezone(self, service):
         original = datetime(2024, 3, 20, 12, 0, 0, tzinfo=pytz.UTC)
-        assert service.to_utc(service.to_company_timezone(original)) == original
+        assert service.to_utc(service.to_local(original)) == original
 
-    def test_to_company_timezone_none(self, service):
-        assert service.to_company_timezone(None) is None
+    def test_to_local_timezone_none(self, service):
+        assert service.to_local(None) is None
 
     def test_to_utc_none(self, service):
         assert service.to_utc(None) is None

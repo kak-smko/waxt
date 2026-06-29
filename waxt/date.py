@@ -40,7 +40,7 @@ class Date:
     def now(self) -> datetime:
         return datetime.now(self._get_timezone())
 
-    def to_company_timezone(self, utc_dt: datetime) -> datetime:
+    def to_local(self, utc_dt: datetime) -> datetime:
         if utc_dt is None:
             return None
 
@@ -330,9 +330,3 @@ class Date:
         if dt is None:
             return None
         return dt.replace(hour=23, minute=59, second=59, microsecond=999999)
-
-
-def create_date_service_for_company(company) -> Date:
-    timezone = getattr(company, "timezone", "UTC")
-    calendar = getattr(company, "calendar", "gregorian")
-    return Date(timezone=timezone, calendar=calendar)
