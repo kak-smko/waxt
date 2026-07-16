@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "waxt"
-version = "0.1.2"
+version = "0.2.0"
 description = "A modern Python library for multi-calendar date conversions (Jalali, Hijri, Gregorian)"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -35,9 +35,7 @@ classifiers = [
     "Programming Language :: Python :: 3 :: Only",
     "Typing :: Typed",
 ]
-dependencies = [
-    "pytz>=2023.3",
-]
+dependencies = []
 
 [project.optional-dependencies]
 dev = [
@@ -53,6 +51,8 @@ test = [
     "pytest>=7.4.0",
     "pytest-cov>=4.1.0",
     "pytest-xdist>=3.3.0",
+    "hypothesis>=6.100.0",
+    "pytest-benchmark>=4.0.0"
 ]
 docs = [
     "sphinx>=7.0.0",
@@ -79,6 +79,12 @@ minversion = "7.0"
 addopts = "-ra -q --cov=waxt --cov-report=term-missing"
 testpaths = ["tests"]
 python_files = ["test_*.py"]
+markers = [
+    "slow: exhaustive/long-running tests (full-range sweeps, large random samples)",
+    "performance: pytest-benchmark based performance tests",
+    "property: hypothesis-based property tests",
+    "hijri: supplementary tests for the HijriCalendar helper (not the primary Jalali/Gregorian scope)",
+]
 
 [tool.black]
 line-length = 88

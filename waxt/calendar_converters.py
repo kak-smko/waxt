@@ -1,8 +1,8 @@
-import math
 from typing import Tuple
 
 
 class JalaliCalendar:
+    # Break points of the 33-year leap cycle approximation.
     BREAKS = [
         -61,
         9,
@@ -27,11 +27,111 @@ class JalaliCalendar:
     ]
 
     @staticmethod
+    def _div(a: int, b: int) -> int:
+        q = a // b
+        if (a % b != 0) and ((a < 0) != (b < 0)):
+            q += 1
+        return q
+
+    @staticmethod
+    def _mod(a: int, b: int) -> int:
+        return a - JalaliCalendar._div(a, b) * b
+
+    @staticmethod
+    def _jal_cal(j_year: int) -> Tuple[int, int, int]:
+        if j_year < JalaliCalendar.BREAKS[0] or j_year >= JalaliCalendar.BREAKS[-1]:
+            raise ValueError(
+                f"Jalali year {j_year} is outside the supported range "
+                f"({JalaliCalendar.BREAKS[0]}..{JalaliCalendar.BREAKS[-1] - 1})."
+            )
+        breaks = JalaliCalendar.BREAKS
+        bl = len(breaks)
+        gy = j_year + 621
+        leap_j = -14
+        jp = breaks[0]
+
+        jump = 0
+        i = 1
+        while i < bl:
+            jm = breaks[i]
+            jump = jm - jp
+            if j_year < jm:
+                break
+            leap_j = (
+                leap_j
+                + JalaliCalendar._div(jump, 33) * 8
+                + JalaliCalendar._div(JalaliCalendar._mod(jump, 33), 4)
+            )
+            jp = jm
+            i += 1
+
+        n = j_year - jp
+
+        leap_j = (
+            leap_j
+            + JalaliCalendar._div(n, 33) * 8
+            + JalaliCalendar._div(JalaliCalendar._mod(n, 33) + 3, 4)
+        )
+        if JalaliCalendar._mod(jump, 33) == 4 and jump - n == 4:
+            leap_j += 1
+
+        leap_g = (
+            JalaliCalendar._div(gy, 4)
+            - JalaliCalendar._div((JalaliCalendar._div(gy, 100) + 1) * 3, 4)
+            - 150
+        )
+        march = 20 + leap_j - leap_g
+
+        if jump - n < 6:
+            n = n - jump + JalaliCalendar._div(jump + 4, 33) * 33
+        leap = JalaliCalendar._mod(JalaliCalendar._mod(n + 1, 33) - 1, 4)
+        if leap == -1:
+            leap = 4
+
+        return (leap, gy, march)
+
+    @staticmethod
+    def _g2d(gy: int, gm: int, gd: int) -> int:
+        d = (
+            JalaliCalendar._div(
+                (gy + JalaliCalendar._div(gm - 8, 6) + 100100) * 1461, 4
+            )
+            + JalaliCalendar._div(153 * JalaliCalendar._mod(gm + 9, 12) + 2, 5)
+            + gd
+            - 34840408
+        )
+        d = (
+            d
+            - JalaliCalendar._div(
+                JalaliCalendar._div(gy + 100100 + JalaliCalendar._div(gm - 8, 6), 100)
+                * 3,
+                4,
+            )
+            + 752
+        )
+        return d
+
+    @staticmethod
+    def _d2g(jdn: int) -> Tuple[int, int, int]:
+        j = 4 * jdn + 139361631
+        j = (
+            j
+            + JalaliCalendar._div(
+                JalaliCalendar._div(4 * jdn + 183187720, 146097) * 3, 4
+            )
+            * 4
+            - 3908
+        )
+        i = JalaliCalendar._div(JalaliCalendar._mod(j, 1461), 4) * 5 + 308
+        gd = JalaliCalendar._div(JalaliCalendar._mod(i, 153), 5) + 1
+        gm = JalaliCalendar._mod(JalaliCalendar._div(i, 153), 12) + 1
+        gy = JalaliCalendar._div(j, 1461) - 100100 + JalaliCalendar._div(8 - gm, 6)
+        return (gy, gm, gd)
+
+    @staticmethod
     def is_leap(j_year: int) -> bool:
-        cycle_start = 1391
-        position = ((j_year - cycle_start) % 33) + 1
-        leap_positions = [1, 5, 9, 13, 17, 21, 25, 29]
-        return position in leap_positions
+        leap, _, _ = JalaliCalendar._jal_cal(j_year)
+        return leap == 0
 
     @staticmethod
     def jalali_to_gregorian(
@@ -53,124 +153,47 @@ class JalaliCalendar:
                 f"Max days: {max_days}."
             )
 
-        gy = j_year + 621
+        _, gy, march = JalaliCalendar._jal_cal(j_year)
 
-        breaks = JalaliCalendar.BREAKS
-        leap = -14
-        jp = breaks[0]
+        jdn = (
+            JalaliCalendar._g2d(gy, 3, march)
+            + (j_month - 1) * 31
+            - JalaliCalendar._div(j_month, 7) * (j_month - 7)
+            + j_day
+            - 1
+        )
 
-        jump = 0
-        for i in range(1, len(breaks)):
-            jm = breaks[i]
-            jump = jm - jp
-            if j_year < jm:
-                break
-            leap = leap + (jump // 33) * 8 + ((jump % 33) // 4)
-            jp = jm
+        g_year, g_month, g_day = JalaliCalendar._d2g(jdn)
 
-        n = j_year - jp
-
-        if jump - n < 6:
-            n = n - jump + ((jump + 4) // 33) * 33
-
-        leap = leap + ((n + 1) // 33) * 8 + (((n % 33) + 3) // 4)
-
-        if (jump % 33) == 4 and (jump - n) == 4:
-            leap += 1
-
-        gy_offset = gy
-
-        if j_month <= 6:
-            j_day_of_year = (j_month - 1) * 31 + j_day
-        else:
-            j_day_of_year = 6 * 31 + (j_month - 7) * 30 + j_day
-
-        g_day_of_year = j_day_of_year + 79
-
-        if ((gy_offset % 4 == 0) and (gy_offset % 100 != 0)) or (gy_offset % 400 == 0):
-            is_gregorian_leap = True
-        else:
-            is_gregorian_leap = False
-
-        if g_day_of_year > (366 if is_gregorian_leap else 365):
-            g_day_of_year -= 366 if is_gregorian_leap else 365
-            gy_offset += 1
-            is_gregorian_leap = ((gy_offset % 4 == 0) and (gy_offset % 100 != 0)) or (
-                gy_offset % 400 == 0
-            )
-
-        month_days = [
-            31,
-            29 if is_gregorian_leap else 28,
-            31,
-            30,
-            31,
-            30,
-            31,
-            31,
-            30,
-            31,
-            30,
-            31,
-        ]
-        g_month = 1
-        for days in month_days:
-            if g_day_of_year <= days:
-                g_day = g_day_of_year
-                break
-            g_day_of_year -= days
-            g_month += 1
-
-        return (gy_offset, g_month, int(g_day))
+        return (g_year, g_month, g_day)
 
     @staticmethod
     def gregorian_to_jalali(
         g_year: int, g_month: int, g_day: int
     ) -> Tuple[int, int, int]:
-        month_days = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+        jdn = JalaliCalendar._g2d(g_year, g_month, g_day)
 
-        if ((g_year % 4 == 0) and (g_year % 100 != 0)) or (g_year % 400 == 0):
-            month_days[2] = 29
+        j_year = g_year - 621
+        leap, jgy, march = JalaliCalendar._jal_cal(j_year)
+        jdn1f = JalaliCalendar._g2d(jgy, 3, march)
 
-        g_day_of_year = sum(month_days[:g_month]) + g_day
-
-        march_day = 80
-        if ((g_year % 4 == 0) and (g_year % 100 != 0)) or (g_year % 400 == 0):
-            march_day = 80
-
-        if g_day_of_year >= march_day:
-            j_day_of_year = g_day_of_year - march_day + 1
-            j_year = g_year - 621
+        k = jdn - jdn1f
+        if k >= 0:
+            if k <= 185:
+                j_month = 1 + JalaliCalendar._div(k, 31)
+                j_day = JalaliCalendar._mod(k, 31) + 1
+                return (j_year, j_month, j_day)
+            k -= 186
         else:
-            prev_year = g_year - 1
-            if ((prev_year % 4 == 0) and (prev_year % 100 != 0)) or (
-                prev_year % 400 == 0
-            ):
-                days_in_prev_year = 366
-            else:
-                days_in_prev_year = 365
+            j_year -= 1
+            k += 179
+            if leap == 1:
+                k += 1
 
-            j_day_of_year = days_in_prev_year - march_day + g_day_of_year + 1
-            j_year = g_year - 622
+        j_month = 7 + JalaliCalendar._div(k, 30)
+        j_day = JalaliCalendar._mod(k, 30) + 1
 
-        if JalaliCalendar.is_leap(j_year):
-            j_year_length = 366
-        else:
-            j_year_length = 365
-
-        if j_day_of_year > j_year_length:
-            j_day_of_year -= j_year_length
-            j_year += 1
-
-        if j_day_of_year <= 186:
-            j_month = math.ceil(j_day_of_year / 31)
-            j_day = j_day_of_year - (j_month - 1) * 31
-        else:
-            remaining = j_day_of_year - 186
-            j_month = 6 + math.ceil(remaining / 30)
-            j_day = remaining - (j_month - 7) * 30
-
-        return (int(j_year), int(j_month), int(j_day))
+        return (j_year, j_month, j_day)
 
 
 class HijriCalendar:
@@ -241,7 +264,7 @@ class HijriCalendar:
         days_from_epoch = (target - epoch).days + 1
 
         if days_from_epoch < 1:
-            return (1, 1, 1)
+            raise ValueError("Date is before Hijri epoch.")
 
         h_year = int(days_from_epoch / 354.36667) + 1
 
